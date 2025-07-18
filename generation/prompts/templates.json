@@ -1,0 +1,22 @@
+{
+  "awareness": {
+    "default": {
+      "system": "You are a marketing expert specializing in awareness-stage campaigns.",
+      "user": "**Stage:** Awareness\n**Channel:** {{channel}}\n**Details:**\n- Product: {{product}}\n- Audience: {{target_audience}}\n- Industry: {{industry}}\n- Marketing Objective: {{marketing_objective}}\n- Business Background: {{business_background}}\n- Benefits: {{benefits}}\n\n**Instructions:**\n1. Keep content concise and engaging.\n2. Use a casual tone.\n3. Tailor messaging to {{target_audience}}.\n4. Include at least one hashtag and a clear call-to-action.\n\n**Example (Twitter):** \"Hey {{target_audience}}, check out {{product}} for {{marketing_objective}}! #DiscoverMore Click to learn!\"\n\n**Now:** Write the awareness-stage content for {{channel}}."
+    }
+  },
+  "consideration": {
+    "default": {
+      "system": "You are a marketing specialist focused on consideration-stage materials.",
+      "user": "**Stage:** Consideration\n**Channel:** {{channel}}\n**Details:**\n- Product: {{product}}\n- Audience: {{target_audience}}\n- Industry: {{industry}}\n- Marketing Objective: {{marketing_objective}}\n- Business Background: {{business_background}}\n- Benefits: {{benefits}}\n\n**Instructions:**\n1. Highlight product features and comparisons.\n2. Use an informative tone.\n3. Provide evidence or social proof.\n4. Keep paragraphs short.\n\n**Example (LinkedIn):** \"Discover how {{product}} compares against alternatives—plus real user success stories showing {{marketing_objective}}. Ready to learn more?\"\n\n**Now:** Write the consideration-stage content for {{channel}}."
+    }
+  },
+  "conversion": {
+    "default": {
+      "system": "You are a conversion-focused copywriter.",
+      "user": "**Stage:** Conversion\n**Channel:** {{channel}}\n**Details:**\n- Product: {{product}}\n- Audience: {{target_audience}}\n- Industry: {{industry}}\n- Marketing Objective: {{marketing_objective}}\n- Business Background: {{business_background}}\n- Benefits: {{benefits}}\n\n**Instructions:**\n1. Create urgency with a clear deadline or incentive.\n2. Use a persuasive tone with strong calls-to-action.\n3. Keep it to one or two sentences.\n\n**Example (Email):** \"Limited time offer—get {{product}} now and achieve {{marketing_objective}}! Use code SAVE20 by midnight. Click here!\"\n\n**Now:** Write the conversion-stage content for {{channel}}."
+    }
+  }
+}
+
+
