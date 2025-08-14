@@ -5,3 +5,9 @@ scikit-learn
 joblib
 python-dotenv
 pandas
+gower
+matplotlib      # only if used
+seaborn         # only if used
+numpy           # only if used directly
+requests
+openpyxl==3.1.5
