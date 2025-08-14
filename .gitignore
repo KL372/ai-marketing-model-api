@@ -1,4 +1,55 @@
+# --- Runtime & secrets ---
 venv/
 .env
-*.pyc
+
+# --- Python artifacts ---
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.dist-info/
+
+# --- Tests & coverage ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# --- Notebooks ---
+.ipynb_checkpoints/
+
+# --- Logs & temp ---
+*.log
+*.tmp
+*.bak
+
+# --- Build & tool caches ---
+build/
+dist/
+.cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# --- Editors/IDE (optional; keep if you don't want to share settings) ---
+.vscode/
+.idea/
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- Models/artifacts ---
+# Ignore all pickled models EXCEPT the one you actually ship
+*.pkl
+!clustering/cluster_pipeline.pkl
+
+# --- Data policy (optional) ---
+# Keep small sample files in Git; ignore heavy raw data if you have it.
+# data/raw/**
+# !data/sample_*.csv
+# !data/sample_*.xlsx
