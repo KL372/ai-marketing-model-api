@@ -1,4 +1,6 @@
 # scripts/save_model.py
+# Purpose: Train and serialize the GowerHierarchicalClusterer to clustering/cluster_pipeline.pkl
+# Uses robust path joins so it runs from any working directory.
 
 import os
 import pandas as pd

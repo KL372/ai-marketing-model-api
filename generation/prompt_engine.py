@@ -1,9 +1,12 @@
-#select the proper stage/template, insert channel and all user‐supplied fields, and output the system+user messages for OpenAI.
+# generation/prompt_engine.py
+# Purpose: Build system+user messages for OpenAI based on stage/channel,
+# inject examples per channel/style, and append optional style/tone/instructions.
 
 import json
 import os
 from typing import Dict, List
 
+# Channel-specific example lines used to "prime" style expectations.
 EXAMPLES = {
     "twitter": {
         "witty": "Desk getting wild? FlexiMat’s got you covered—literally. 😏 #DeskGlowUp",
@@ -39,7 +42,7 @@ EXAMPLES = {
     }
 }
 
-
+# Path to JSON templates for awareness/consideration/conversion
 TEMPLATE_PATH = os.path.join(
     os.path.dirname(__file__), 'prompts', 'templates.json'
 )
@@ -47,6 +50,7 @@ _templates: Dict = None
 
 
 def load_templates() -> Dict:
+    """Load templates.json once and cache in module-level _templates."""
     global _templates
     if _templates is None:
         with open(TEMPLATE_PATH, 'r') as f:
@@ -54,6 +58,10 @@ def load_templates() -> Dict:
     return _templates
 
 def select_example(channel, style):
+    """
+    Pick a channel-specific example string based on optional `style`.
+    Falls back to channel default when style not provided or unknown.
+    """
     channel = channel.lower()
     style = (style or "").lower()
     channel_examples = EXAMPLES.get(channel, {})
@@ -69,23 +77,27 @@ def build_prompt_messages(
 ) -> List[Dict[str, str]]:
     """
     Build system+user messages for a given funnel stage and channel.
-    data should include keys: product, target_audience, industry,
-    marketing_objective, business_background, benefits.
+
+    data should include:
+      product, target_audience, industry,
+      marketing_objective, business_background, benefits
+    Optional (appended after the template): style, tone, more_instructions
     """
     templates = load_templates()
     section = templates.get(stage, {}).get('default', {})
     system_msg = section.get('system', '')
     user_template = section.get('user', '')
     
-    
     # Select the example based on channel and style
     example_text = select_example(channel, data.get('style', ''))
+    
     # Fill the example into the template
-    # Insert channel into details as well
     filled = user_template.replace('{{channel}}', channel)
     filled = filled.replace('{{example}}', example_text)
+    
     for key, val in data.items():
         # Avoid replacing placeholders for style, tone, more_instructions here (unless you want to put them in the template itself)
+        # they are appended as explicit sections to avoid clobbering.
         if key in ['style', 'tone', 'more_instructions']:
             continue
         placeholder = f'{{{{{key}}}}}'
@@ -101,7 +113,7 @@ def build_prompt_messages(
             f"\n\n**Additional Instructions:** {data['more_instructions']}\n"
             "If these instructions conflict with anything above, follow the additional instructions."
         )
-        
+    # Return in Chat Completions message format    
     return [
         {'role': 'system', 'content': system_msg},
         {'role': 'user', 'content': filled}

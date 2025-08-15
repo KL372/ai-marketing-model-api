@@ -1,10 +1,13 @@
+# app.py
+# Purpose: Expose REST endpoints for health, content generation, and (demo)
+# clustering. Applies channel-specific temperature/max_tokens tuning.
 from flask import Flask, request, jsonify
 from clustering.cluster import get_segment
 from generation.openai_client import generate_content
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app) # enable cross-origin requests from the UI
 
 @app.route('/')
 def home():
@@ -19,7 +22,12 @@ def home():
 @app.route('/cluster', methods=['POST'])
 #Purpose: run customer segmentation and return cluster assignment + summary stats.
 def cluster_api():
-    
+    """
+    Demo endpoint: run customer segmentation and return cluster assignment.
+
+    Request JSON must contain:
+      product, channel, Date Joined, Loyalty Tier, Gender, Location
+    """
     data = request.get_json() or {}
      # Minimal input validation: all required fields must be present
     if not all(k in data for k in ('product','channel','Date Joined','Loyalty Tier','Gender','Location')):
@@ -29,33 +37,21 @@ def cluster_api():
         segment = get_segment(data)
         return jsonify({"cluster": segment})
     except Exception as e:
+        # Bubble up any model/IO/parsing errors
         return jsonify({"error": str(e)}), 500
 
 @app.route('/generate', methods=['POST'])
 def generate_api():
     """
-    POST /generate
-    Expects JSON:
-      {
-        "stage": "...",
-        "channel": "...",
-        "target_audience": "...",
-        "industry": "...",
-        "marketing_objective": "...",
-        "business_background": "...",
-        "benefits": "...",
-        "style": "...",               
-        "tone": "...",                
-        "more_instructions": "...",   
-        "n_options": 3                
-      }
+    Generate channel-appropriate marketing copy.
+
+    Expected JSON:
+      Required: stage, channel, product, target_audience, industry,
+                marketing_objective, business_background, benefits
+      Optional: style, tone, more_instructions, n_options
+
     Returns:
-      {
-        "options": [
-          {"hook": "...", "body_text": "...", "call_to_action": "..."},
-          ...
-        ]
-      }
+      {"options": [{"hook": "...", "body_text": "...", "call_to_action": "..."}, ...]}
     """
     data = request.get_json() or {}
     # Validate that all required prompt fields are present
@@ -76,11 +72,11 @@ def generate_api():
     channel = data.get('channel', '').lower()
     stage = data.get('stage', '').lower()
 
-    # Default values
+    # sensible defaults
     temperature = 0.7
     max_tokens = 120
 
-  # Adjust settings by channel for more natural, platform-appropriate results
+   # per-channel tuning (kept conservative for professional channels)
     if channel == "twitter":
         temperature = 0.95# More creative for short posts
         max_tokens = 80
@@ -113,6 +109,7 @@ def generate_api():
 if __name__ == '__main__':
     # Run Flask app on all network interfaces, port 5001
     # Debug mode enabled for development
+    # Dev server (do not use in production)
     app.run(host='0.0.0.0', port=5001, debug=True)
 
 

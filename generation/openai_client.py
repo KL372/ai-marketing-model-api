@@ -1,3 +1,6 @@
+# generation/openai_client.py
+# Purpose: Wrap OpenAI Chat Completions call with messages from prompt_engine
+# and return parsed JSON objects for each choice
 import os
 import openai
 import json
@@ -19,18 +22,34 @@ def generate_content(
     max_tokens: int = 200
 ) -> list[dict]:
     """
-    Generates n_options of marketing content as dicts with keys: hook, body_text, call_to_action.
-    - stage: one of "awareness", "consideration", "conversion"
-    - channel: e.g. "Twitter", "LinkedIn", "Email"
-    - data: dict with keys matching your template placeholders
-    - n_options: how many variants to return
-    - temperature / max_tokens: tune as needed
+    Generate n_options pieces of marketing content with keys:
+    hook, body_text, call_to_action.
+
+    Parameters
+    ----------
+    stage : {'awareness','consideration','conversion'}
+    channel : e.g., 'Twitter','LinkedIn','Email','Instagram'
+    data : dict
+        Must include fields expected by the templates; optional style/tone/more_instructions.
+    n_options : int
+        Number of choices to request from the model.
+    temperature : float
+        Creativity setting (higher = more diverse).
+    max_tokens : int
+        Max tokens for each completion.
+
+    Returns
+    -------
+    list[dict]
+        Each element is a parsed JSON object (or {error, raw} on parse failure).
     """
+    # Build messages using the prompt engine
     messages = build_prompt_messages(stage, channel, data)
     print("Prompt messages being sent to OpenAI:", messages)
     print("Model:", "gpt-4o")
     print("n_options:", n_options, "temperature:", temperature, "max_tokens:", max_tokens)
     try:
+        # Build messages using the prompt engine
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=messages,
@@ -44,15 +63,18 @@ def generate_content(
 
         print("Raw OpenAI API response received!")
     except Exception as e:
-        print("OpenAI API call error:", e)  # <--- This will show you the actual error in your terminal
+         # Allow Flask to handle as 500; error logged for debugging
+        print("OpenAI API call error:", e)  # <--- This will show the actual error in]terminal
         raise  # This lets Flask handle it as a 500 error
-
+    
+    # Parse each choice's content into JSO
     results = []
     for choice in response.choices:
         try:
             print("OpenAI response content:", choice.message.content)
             results.append(json.loads(choice.message.content.strip()))
         except Exception as e:
+            # Capture raw content for debugging when JSON parsing fails
             print("JSON parse error:", e, "content was:", choice.message.content.strip())
             results.append({"error": str(e), "raw": choice.message.content.strip()})
     return results
